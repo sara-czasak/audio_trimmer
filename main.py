@@ -12,9 +12,9 @@ def check_format(timestamp):
 
 
 def trim_audio(audio, start, end):
+    time.sleep(10)
     audio.seek(0)
     audio_segment = AudioSegment.from_file(audio)
-    new_track = audio_segment[(start * 1000):(end * 1000)]
     new_track = audio_segment[(start * 1000):(end * 1000)]
     st.write(f"Start: {start} End: {end} Length: {len(new_track)}")
     st.session_state["to_download"] = new_track
@@ -22,7 +22,6 @@ def trim_audio(audio, start, end):
 
 
 def download_audio(track_to_download):
-    time.sleep(4)
     buffer = BytesIO()
     track_to_download.export(buffer, format="mp3")
     buffer.seek(0)
