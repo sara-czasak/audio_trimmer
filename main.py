@@ -15,6 +15,7 @@ def trim_audio(audio, start, end):
     audio.seek(0)
     audio_segment = AudioSegment.from_file(audio)
     new_track = audio_segment[(start * 1000):(end * 1000)]
+    new_track = audio_segment[(start * 1000):(end * 1000)]
     st.write(f"Start: {start} End: {end} Length: {len(new_track)}")
     st.session_state["to_download"] = new_track
     return new_track
