@@ -3,6 +3,7 @@ from mutagen import File
 import re
 from pydub import AudioSegment
 from io import BytesIO
+import time
 
 
 def check_format(timestamp):
@@ -20,6 +21,7 @@ def trim_audio(audio, start, end):
 
 
 def download_audio(track_to_download):
+    time.sleep(4)
     buffer = BytesIO()
     track_to_download.export(buffer, format="mp3")
     buffer.seek(0)
