@@ -3,7 +3,6 @@ from mutagen import File
 import re
 from pydub import AudioSegment
 from io import BytesIO
-import time
 
 
 def check_format(timestamp):
@@ -12,21 +11,17 @@ def check_format(timestamp):
 
 
 def trim_audio(audio, start, end):
-    time.sleep(10)
-    audio.seek(0)
-    audio_segment = AudioSegment.from_file(audio)
-    new_track = audio_segment[(start * 1000):(end * 1000)]
-    st.write(f"Start: {start} End: {end} Length: {len(new_track)}")
-    st.session_state["to_download"] = new_track
-    return new_track
+        audio.seek(0)
+        audio_segment = AudioSegment.from_file(audio)
+        new_track = audio_segment[(start * 1000):(end * 1000)]
+        st.session_state["to_download"] = new_track
+        return new_track
 
 
 def download_audio(track_to_download):
     buffer = BytesIO()
     track_to_download.export(buffer, format="mp3")
     buffer.seek(0)
-    info = File(buffer)
-    st.write(info.info.length)
     return buffer
 
 
@@ -52,30 +47,26 @@ if original_audio:
         alt="Audio to edit",
     )
     st.write("Please select what you would like to trim:")
-    new_start = st.text_input("Start time: ", value="0:00")
-    new_end = st.text_input("End time: ", value=f"{minutes}:{seconds:02d}")
-    if check_format(new_start) and check_format(new_end):
-        new_start_time_seconds = (int(new_start.split(":")[0]) * 60) + int(
-            new_start.split(":")[1])
-        new_end_time_seconds = (int(new_end.split(":")[0]) * 60) + int(
-            new_end.split(":")[1])
-        if audio_length_seconds >= new_end_time_seconds > new_start_time_seconds:
-            st.button(label="Trim Audio",
-                      disabled=False,
-                      on_click=lambda: trim_audio(original_audio,
-                                                  new_start_time_seconds,
-                                                  new_end_time_seconds))
-            if "to_download" in st.session_state:
-                st.download_button(label="Download Audio",
-                                   data=download_audio(
-                                       st.session_state.to_download
-                                   ),
-                                   file_name=f"{original_audio.name.split('.')[0]}_trimmed.mp3")
-        else:
-            st.button(label="Trim Audio",
-                      disabled=True)
-    else:
-        st.button(label="Trim Audio",
-                  disabled=True)
-else:
-    pass
+
+    with st.form("my_form"):
+        new_start = st.text_input(label="Start time: ",
+                                  value="0:00")
+        new_end = st.text_input(label="End time: ",
+                                value=f"{minutes}:{seconds:02d}")
+
+        submitted = st.form_submit_button(label="Trim Audio")
+
+    if submitted:
+        if check_format(new_start) and check_format(new_end):
+            new_start_time_seconds = (int(new_start.split(":")[0]) * 60) + int(
+                new_start.split(":")[1])
+            new_end_time_seconds = (int(new_end.split(":")[0]) * 60) + int(
+                new_end.split(":")[1])
+            trim_audio(original_audio, new_start_time_seconds, new_end_time_seconds)
+
+    if "to_download" in st.session_state:
+        st.download_button(label="Download Audio",
+                           data=download_audio(
+                               st.session_state.to_download
+                           ),
+                           file_name=f"{original_audio.name.split('.')[0]}_trimmed.mp3")
